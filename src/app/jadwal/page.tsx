@@ -124,6 +124,23 @@ export default async function JadwalPage({
         </div>
       </div>
 
+      <div className="flex flex-wrap items-center gap-x-4 gap-y-1 rounded-lg border border-zinc-200 bg-white px-3 py-2 text-xs text-zinc-600">
+        <span className="font-semibold text-zinc-700">Legenda:</span>
+        <span className="flex items-center gap-1">
+          <span className="inline-block h-3 w-3 rounded-sm border border-blue-300 bg-blue-50" /> Shift FT
+        </span>
+        <span className="flex items-center gap-1">
+          <span className="inline-block h-3 w-3 rounded-sm border border-green-300 bg-green-50" /> Shift PT
+        </span>
+        <span className="flex items-center gap-1">
+          <span className="inline-block h-3 w-3 rounded-sm border border-zinc-300 bg-zinc-100" /> Libur
+        </span>
+        <span className="flex items-center gap-1">
+          <span className="inline-block h-3 w-3 rounded-sm border border-purple-300 bg-purple-50" /> PH/Libur nasional
+        </span>
+        <span className="text-zinc-400">· Klik dropdown untuk ganti shift — tersimpan otomatis.</span>
+      </div>
+
       <div className="overflow-x-auto rounded-lg border border-zinc-200 bg-white">
         <table className="w-full text-xs">
           <thead>
@@ -171,10 +188,15 @@ export default async function JadwalPage({
                     return (
                       <td key={iso} className="px-1 py-1.5">
                         <AssignmentSelect
+                          key={`${iso}-${current?.shiftCodeId ?? "kosong"}`}
                           staffId={s.id}
                           dateISO={iso}
                           currentShiftCodeId={current?.shiftCodeId ?? null}
-                          options={optionsForType(s.tipe).map((o) => ({ id: o.id, code: o.code }))}
+                          options={optionsForType(s.tipe).map((o) => ({
+                            id: o.id,
+                            code: o.code,
+                            category: o.category,
+                          }))}
                         />
                       </td>
                     );

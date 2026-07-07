@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import Link from "next/link";
+import { NavLinks } from "./NavLinks";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -18,16 +18,6 @@ export const metadata: Metadata = {
   description: "Aplikasi kelola jadwal shift staff",
 };
 
-const NAV = [
-  { href: "/", label: "Dashboard" },
-  { href: "/jadwal", label: "Jadwal" },
-  { href: "/coverage", label: "Coverage" },
-  { href: "/gaji", label: "Gaji" },
-  { href: "/staff", label: "Staff" },
-  { href: "/shift-codes", label: "Kode Shift" },
-  { href: "/config", label: "Pengaturan" },
-];
-
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -39,25 +29,18 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-zinc-50 text-zinc-900">
-        <header className="border-b border-zinc-200 bg-white">
-          <div className="mx-auto flex max-w-6xl items-center gap-6 px-4 py-3">
-            <span className="text-lg font-semibold">Jadwal</span>
-            <nav className="flex gap-4 text-sm">
-              {NAV.map((item) => (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className="text-zinc-600 hover:text-zinc-950"
-                >
-                  {item.label}
-                </Link>
-              ))}
-            </nav>
+        <header className="sticky top-0 z-20 border-b border-zinc-200 bg-white/90 backdrop-blur">
+          <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-x-6 gap-y-2 px-4 py-3">
+            <span className="text-lg font-bold tracking-tight">📋 Jadwal</span>
+            <NavLinks />
           </div>
         </header>
         <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-6">
           {children}
         </main>
+        <footer className="border-t border-zinc-200 py-4 text-center text-xs text-zinc-400">
+          Aplikasi jadwal shift · pengganti spreadsheet
+        </footer>
       </body>
     </html>
   );
