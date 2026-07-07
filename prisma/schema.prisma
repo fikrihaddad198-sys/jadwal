@@ -1,0 +1,72 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum StaffType {
+  FT
+  PT
+}
+
+enum ShiftCategory {
+  FT
+  PT
+  OFF
+  HOLIDAY
+  MEETING
+}
+
+model Staff {
+  id          String       @id @default(cuid())
+  nama        String       @unique
+  tipe        StaffType
+  aktif       Boolean      @default(true)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  assignments Assignment[]
+}
+
+model ShiftCode {
+  id          String        @id @default(cuid())
+  code        String        @unique
+  startTime   String?
+  endTime     String?
+  hours       Float         @default(0)
+  category    ShiftCategory @default(PT)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  assignments Assignment[]
+}
+
+model Assignment {
+  id          String    @id @default(cuid())
+  staff       Staff     @relation(fields: [staffId], references: [id], onDelete: Cascade)
+  staffId     String
+  shiftCode   ShiftCode @relation(fields: [shiftCodeId], references: [id])
+  shiftCodeId String
+  date        DateTime  @db.Date
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@unique([staffId, date])
+  @@index([date])
+}
+
+model Config {
+  id                 Int      @id @default(1)
+  targetJamPT        Float    @default(100)
+  periodeMulaiTgl    Int      @default(21)
+  periodeSelesaiTgl  Int      @default(20)
+  liburMinMinggu     Int      @default(2)
+  liburMaxMinggu     Int      @default(3)
+  liburHarianMin     Int      @default(2)
+  liburHarianMax     Int      @default(3)
+  updatedAt          DateTime @updatedAt
+}
