@@ -11,7 +11,9 @@ import {
   addDays,
 } from "@/lib/period";
 import { sumJam, countLibur, jamStatus, validasiLiburHarian, validasiLiburMingguan } from "@/lib/summary";
+import { labourCostFor, formatRupiah } from "@/lib/labour";
 import { AssignmentSelect } from "./AssignmentSelect";
+import { GenerateButton } from "./GenerateButton";
 import type { ShiftCategory } from "@prisma/client";
 
 export const dynamic = "force-dynamic";
@@ -70,7 +72,16 @@ export default async function JadwalPage({
   const dailyLibur = currentWeek.dates.map((d) => {
     const iso = toISODate(d);
     const libur = staff.filter((s) => byStaffAndDate.get(s.id)?.get(iso)?.shiftCode.category === "OFF").length;
-    return { date: d, libur, masuk: staff.length - libur };
+    const totalJam = staff.reduce(
+      (acc, s) => acc + (byStaffAndDate.get(s.id)?.get(iso)?.shiftCode.hours ?? 0),
+      0
+    );
+    const cost = staff.reduce(
+      (acc, s) =>
+        acc + labourCostFor(s, byStaffAndDate.get(s.id)?.get(iso)?.shiftCode.hours ?? 0, config),
+      0
+    );
+    return { date: d, libur, masuk: staff.length - libur, totalJam, cost };
   });
 
   return (
@@ -108,6 +119,9 @@ export default async function JadwalPage({
             Minggu {w.index + 1}
           </Link>
         ))}
+        <div className="ml-auto">
+          <GenerateButton periodStartISO={toISODate(period.start)} weekIndex={weekIndex} />
+        </div>
       </div>
 
       <div className="overflow-x-auto rounded-lg border border-zinc-200 bg-white">
@@ -125,6 +139,7 @@ export default async function JadwalPage({
               <th className="px-2 py-2 text-right">Jam/Minggu</th>
               <th className="px-2 py-2 text-right">Libur/Minggu</th>
               <th className="px-2 py-2 text-right">Jam Periode</th>
+              <th className="px-2 py-2 text-right">Labour Cost</th>
               <th className="px-2 py-2">Status</th>
             </tr>
           </thead>
@@ -138,8 +153,13 @@ export default async function JadwalPage({
               const totalJamMinggu = sumJam(weekAssignments);
               const totalLiburMinggu = countLibur(weekAssignments);
               const totalJamPeriode = sumJam(periodAssignments);
+              const costMinggu = labourCostFor(s, totalJamMinggu, config);
               const status = jamStatus(s.tipe, totalJamPeriode, config.targetJamPT);
-              const liburOk = validasiLiburMingguan(totalLiburMinggu, config.liburMinMinggu, config.liburMaxMinggu);
+              // aturan libur 2-3/minggu hanya untuk PT; FT cukup 1 dayoff
+              const liburOk =
+                s.tipe === "PT"
+                  ? validasiLiburMingguan(totalLiburMinggu, config.liburMinMinggu, config.liburMaxMinggu)
+                  : totalLiburMinggu >= 1;
 
               return (
                 <tr key={s.id} className="border-b border-zinc-100 last:border-0">
@@ -162,6 +182,7 @@ export default async function JadwalPage({
                   <td className="px-2 py-1.5 text-right">{totalJamMinggu}</td>
                   <td className={`px-2 py-1.5 text-right ${liburOk ? "" : "text-red-600"}`}>{totalLiburMinggu}</td>
                   <td className="px-2 py-1.5 text-right">{totalJamPeriode}</td>
+                  <td className="px-2 py-1.5 text-right whitespace-nowrap">{formatRupiah(costMinggu)}</td>
                   <td className="px-2 py-1.5">
                     {status && (
                       <span className={status.ok ? "text-green-700" : "text-red-600"}>
@@ -174,7 +195,7 @@ export default async function JadwalPage({
             })}
             {staff.length === 0 && (
               <tr>
-                <td colSpan={12} className="px-3 py-6 text-center text-zinc-400">
+                <td colSpan={14} className="px-3 py-6 text-center text-zinc-400">
                   Belum ada staff aktif. Tambahkan di halaman Staff.
                 </td>
               </tr>
@@ -190,7 +211,7 @@ export default async function JadwalPage({
                   {masuk}
                 </td>
               ))}
-              <td colSpan={4}></td>
+              <td colSpan={5}></td>
             </tr>
             <tr className="bg-zinc-50">
               <td className="sticky left-0 bg-zinc-50 px-3 py-1.5 font-medium" colSpan={2}>
@@ -204,7 +225,31 @@ export default async function JadwalPage({
                   </td>
                 );
               })}
-              <td colSpan={4}></td>
+              <td colSpan={5}></td>
+            </tr>
+            <tr className="bg-zinc-50">
+              <td className="sticky left-0 bg-zinc-50 px-3 py-1.5 font-medium" colSpan={2}>
+                Total Jam Harian
+              </td>
+              {dailyLibur.map(({ date, totalJam }) => (
+                <td key={toISODate(date)} className="px-1 py-1.5 text-center">
+                  {totalJam}
+                </td>
+              ))}
+              <td colSpan={5}></td>
+            </tr>
+            <tr className="bg-zinc-50">
+              <td className="sticky left-0 bg-zinc-50 px-3 py-1.5 font-medium" colSpan={2}>
+                Labour Cost Harian
+              </td>
+              {dailyLibur.map(({ date, cost }) => (
+                <td key={toISODate(date)} className="px-1 py-1.5 text-center whitespace-nowrap">
+                  {formatRupiah(cost)}
+                </td>
+              ))}
+              <td className="px-2 py-1.5 text-right font-semibold whitespace-nowrap" colSpan={5}>
+                Total minggu: {formatRupiah(dailyLibur.reduce((a, d) => a + d.cost, 0))}
+              </td>
             </tr>
           </tfoot>
         </table>

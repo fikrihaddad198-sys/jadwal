@@ -48,6 +48,16 @@ export default async function ConfigPage() {
           name="liburHarianMax"
           defaultValue={config.liburHarianMax}
         />
+        <NumberField
+          label="Pembagi Jam FT (gaji ÷ jam)"
+          name="ftDivisor"
+          defaultValue={config.ftDivisor}
+        />
+        <NumberField
+          label="Rate PT Default / Jam"
+          name="defaultRatePT"
+          defaultValue={config.defaultRatePT}
+        />
         <div className="col-span-2 mt-2">
           <button
             type="submit"
