@@ -24,8 +24,12 @@ export function AssignmentSelect({
       disabled={isPending}
       onChange={(e) => {
         const value = e.target.value;
-        startTransition(() => {
-          setAssignment(staffId, dateISO, value);
+        startTransition(async () => {
+          try {
+            await setAssignment(staffId, dateISO, value);
+          } catch (err) {
+            alert(`Gagal menyimpan shift: ${err instanceof Error ? err.message : String(err)}`);
+          }
         });
       }}
       className="w-full min-w-[5.5rem] rounded border border-zinc-300 bg-white px-1 py-1 text-xs disabled:opacity-50"
