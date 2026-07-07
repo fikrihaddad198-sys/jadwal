@@ -4,19 +4,26 @@ import { prisma } from "@/lib/prisma";
 import { StaffType } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 
-export async function createStaff(formData: FormData) {
+function readStaffForm(formData: FormData) {
   const nama = String(formData.get("nama") || "").trim();
+  const namaLengkap = String(formData.get("namaLengkap") || "").trim() || null;
   const tipe = String(formData.get("tipe") || "PT") as StaffType;
-  if (!nama) return;
-  await prisma.staff.create({ data: { nama, tipe } });
+  const gajiBulanan = Number(formData.get("gajiBulanan")) || null;
+  const rateHourly = Number(formData.get("rateHourly")) || null;
+  return { nama, namaLengkap, tipe, gajiBulanan, rateHourly };
+}
+
+export async function createStaff(formData: FormData) {
+  const data = readStaffForm(formData);
+  if (!data.nama) return;
+  await prisma.staff.create({ data });
   revalidatePath("/staff");
 }
 
 export async function updateStaff(id: string, formData: FormData) {
-  const nama = String(formData.get("nama") || "").trim();
-  const tipe = String(formData.get("tipe") || "PT") as StaffType;
-  if (!nama) return;
-  await prisma.staff.update({ where: { id }, data: { nama, tipe } });
+  const data = readStaffForm(formData);
+  if (!data.nama) return;
+  await prisma.staff.update({ where: { id }, data });
   revalidatePath("/staff");
 }
 

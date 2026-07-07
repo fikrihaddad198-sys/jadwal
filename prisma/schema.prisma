@@ -26,8 +26,11 @@ enum ShiftCategory {
 model Staff {
   id          String       @id @default(cuid())
   nama        String       @unique
+  namaLengkap String?
   tipe        StaffType
   aktif       Boolean      @default(true)
+  gajiBulanan Float?
+  rateHourly  Float?
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
   assignments Assignment[]
@@ -68,5 +71,7 @@ model Config {
   liburMaxMinggu     Int      @default(3)
   liburHarianMin     Int      @default(2)
   liburHarianMax     Int      @default(3)
+  ftDivisor          Float    @default(173)
+  defaultRatePT      Float    @default(45475)
   updatedAt          DateTime @updatedAt
 }

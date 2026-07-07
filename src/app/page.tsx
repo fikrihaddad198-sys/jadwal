@@ -1,21 +1,38 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { getConfig } from "@/lib/config";
+import { getPeriodForDate } from "@/lib/period";
+import { labourCostFor, formatRupiah } from "@/lib/labour";
 
 export const dynamic = "force-dynamic";
 
 export default async function Home() {
-  const [staffCount, activeStaffCount, shiftCodeCount, config] = await Promise.all([
+  const [staffCount, activeStaff, shiftCodeCount, config] = await Promise.all([
     prisma.staff.count(),
-    prisma.staff.count({ where: { aktif: true } }),
+    prisma.staff.findMany({ where: { aktif: true } }),
     prisma.shiftCode.count(),
     getConfig(),
   ]);
 
+  const period = getPeriodForDate(new Date(), config.periodeMulaiTgl, config.periodeSelesaiTgl);
+  const assignments = await prisma.assignment.findMany({
+    where: {
+      staffId: { in: activeStaff.map((s) => s.id) },
+      date: { gte: period.start, lt: period.end },
+    },
+    include: { shiftCode: true },
+  });
+  const staffById = new Map(activeStaff.map((s) => [s.id, s]));
+  const labourCostPeriode = assignments.reduce((acc, a) => {
+    const s = staffById.get(a.staffId);
+    return s ? acc + labourCostFor(s, a.shiftCode.hours, config) : acc;
+  }, 0);
+
   const cards = [
-    { label: "Staff Aktif", value: `${activeStaffCount} / ${staffCount}`, href: "/staff" },
+    { label: "Staff Aktif", value: `${activeStaff.length} / ${staffCount}`, href: "/staff" },
     { label: "Kode Shift", value: shiftCodeCount, href: "/shift-codes" },
     { label: "Target Jam PT / Periode", value: config.targetJamPT, href: "/config" },
+    { label: "Labour Cost Periode Ini", value: `Rp ${formatRupiah(labourCostPeriode)}`, href: "/gaji" },
   ];
 
   return (
@@ -25,7 +42,7 @@ export default async function Home() {
         <p className="text-sm text-zinc-500">Kelola jadwal shift staff.</p>
       </div>
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {cards.map((c) => (
           <Link
             key={c.label}

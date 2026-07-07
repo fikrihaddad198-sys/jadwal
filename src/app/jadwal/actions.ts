@@ -1,7 +1,9 @@
 "use server";
 
 import { prisma } from "@/lib/prisma";
-import { parseISODate } from "@/lib/period";
+import { getConfig } from "@/lib/config";
+import { generateWeek } from "@/lib/generator";
+import { getPeriodForDate, getWeeksInPeriod, parseISODate } from "@/lib/period";
 import { revalidatePath } from "next/cache";
 
 export async function setAssignment(staffId: string, dateISO: string, shiftCodeId: string) {
@@ -15,5 +17,53 @@ export async function setAssignment(staffId: string, dateISO: string, shiftCodeI
       create: { staffId, date, shiftCodeId },
     });
   }
+  revalidatePath("/jadwal");
+}
+
+export async function generateWeekSchedule(periodStartISO: string, weekIndex: number) {
+  const config = await getConfig();
+  const refDate = parseISODate(periodStartISO);
+  const period = getPeriodForDate(
+    new Date(refDate.getUTCFullYear(), refDate.getUTCMonth(), refDate.getUTCDate()),
+    config.periodeMulaiTgl,
+    config.periodeSelesaiTgl
+  );
+  const weeks = getWeeksInPeriod(period);
+  const week = weeks[weekIndex];
+  if (!week) return;
+
+  const totalDaysInPeriod = weeks.reduce((acc, w) => acc + w.dates.length, 0);
+  const [staff, shiftCodes] = await Promise.all([
+    prisma.staff.findMany({ where: { aktif: true }, orderBy: [{ tipe: "asc" }, { nama: "asc" }] }),
+    prisma.shiftCode.findMany(),
+  ]);
+
+  const generated = generateWeek({
+    dates: week.dates,
+    staff,
+    shiftCodes,
+    config,
+    totalDaysInPeriod,
+    weekIndex,
+  });
+
+  const weekStart = week.dates[0];
+  const weekEnd = week.dates[week.dates.length - 1];
+  await prisma.$transaction([
+    prisma.assignment.deleteMany({
+      where: {
+        staffId: { in: staff.map((s) => s.id) },
+        date: { gte: weekStart, lte: weekEnd },
+      },
+    }),
+    prisma.assignment.createMany({
+      data: generated.map((g) => ({
+        staffId: g.staffId,
+        shiftCodeId: g.shiftCodeId,
+        date: parseISODate(g.dateISO),
+      })),
+    }),
+  ]);
+
   revalidatePath("/jadwal");
 }

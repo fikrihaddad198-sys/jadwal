@@ -76,18 +76,55 @@ const ptShiftCodes: { code: string; start: string; end: string; duration: string
   { code: "PT77", start: "8:00", end: "13:00", duration: "5:00:00" },
   { code: "PT78", start: "15:00", end: "20:00", duration: "5:00:00" },
   { code: "PT79", start: "16:00", end: "21:00", duration: "5:00:00" },
+  // Kode shift PT 6 jam (blok kanan tab 'code shift', dipakai di JADWAAAL)
+  { code: "PT15", start: "7:00", end: "13:00", duration: "6:00:00" },
+  { code: "PT16", start: "8:00", end: "14:00", duration: "6:00:00" },
+  { code: "PT17", start: "9:00", end: "15:00", duration: "6:00:00" },
+  { code: "PT19", start: "10:00", end: "16:00", duration: "6:00:00" },
+  { code: "PT20", start: "11:00", end: "17:00", duration: "6:00:00" },
+  { code: "PT21", start: "12:00", end: "18:00", duration: "6:00:00" },
+  { code: "PT22", start: "13:00", end: "19:00", duration: "6:00:00" },
+  { code: "PT24", start: "14:00", end: "20:00", duration: "6:00:00" },
+  { code: "PT25", start: "15:00", end: "21:00", duration: "6:00:00" },
+  { code: "PT45", start: "6:00", end: "12:00", duration: "6:00:00" },
+  { code: "PT60", start: "17:00", end: "23:00", duration: "6:00:00" },
+  { code: "PT34", start: "7:30", end: "13:30", duration: "6:00:00" },
+  { code: "PT12", start: "16:00", end: "20:00", duration: "4:00:00" },
+  { code: "PT89", start: "14:00", end: "19:00", duration: "5:00:00" },
 ];
 
-const staffSeed: { nama: string; tipe: StaffType; aktif: boolean }[] = [
-  { nama: "RIHANA", tipe: "PT", aktif: true },
-  { nama: "DIKY", tipe: "PT", aktif: true },
-  { nama: "ASRI", tipe: "PT", aktif: true },
-  { nama: "ANDRA", tipe: "PT", aktif: true },
-  { nama: "ASNU", tipe: "PT", aktif: true },
-  { nama: "ARI", tipe: "PT", aktif: true },
-  { nama: "AXEL", tipe: "PT", aktif: true },
-  { nama: "RARA", tipe: "PT", aktif: true },
-  { nama: "KEVIN", tipe: "PT", aktif: true },
+const GAJI_FT = 7_326_920;
+const GAJI_SL = 7_451_110;
+const RATE_PT = 45_475;
+
+const staffSeed: {
+  nama: string;
+  tipe: StaffType;
+  aktif: boolean;
+  gajiBulanan?: number;
+  rateHourly?: number;
+  namaLengkap?: string;
+}[] = [
+  // Tim aktif (dari JADWAAAL)
+  { nama: "FIKRI", tipe: "FT", aktif: true, gajiBulanan: GAJI_SL, namaLengkap: "Fikrie" },
+  { nama: "ANDI", tipe: "FT", aktif: true, gajiBulanan: GAJI_FT },
+  { nama: "NESAR", tipe: "FT", aktif: true, gajiBulanan: GAJI_FT },
+  { nama: "HANNA", tipe: "FT", aktif: true, gajiBulanan: GAJI_FT },
+  { nama: "CHILLA", tipe: "FT", aktif: true, gajiBulanan: GAJI_FT },
+  { nama: "CINDY", tipe: "PT", aktif: true, rateHourly: RATE_PT },
+  { nama: "FARID", tipe: "PT", aktif: true, rateHourly: RATE_PT },
+  { nama: "RENALDI", tipe: "PT", aktif: true, rateHourly: RATE_PT },
+  { nama: "SAHRUDIN", tipe: "PT", aktif: true, rateHourly: RATE_PT },
+  { nama: "ASRI", tipe: "PT", aktif: true, rateHourly: RATE_PT, namaLengkap: "Asri Lestari" },
+  // Staff lama (masih ada di history, tidak aktif)
+  { nama: "RIHANA", tipe: "PT", aktif: false, rateHourly: RATE_PT, namaLengkap: "Rihana Sabila" },
+  { nama: "DIKY", tipe: "PT", aktif: false, rateHourly: RATE_PT, namaLengkap: "M. Diky Ikhsanudin" },
+  { nama: "ANDRA", tipe: "PT", aktif: false, rateHourly: RATE_PT, namaLengkap: "Andra Ferdisyah" },
+  { nama: "ASNU", tipe: "PT", aktif: false, rateHourly: RATE_PT, namaLengkap: "Asnu Buma" },
+  { nama: "ARI", tipe: "PT", aktif: false, rateHourly: RATE_PT },
+  { nama: "AXEL", tipe: "PT", aktif: false, rateHourly: RATE_PT, namaLengkap: "Axl Cuba Danil" },
+  { nama: "RARA", tipe: "PT", aktif: false, rateHourly: RATE_PT },
+  { nama: "KEVIN", tipe: "PT", aktif: false, rateHourly: RATE_PT, namaLengkap: "Khevin Juliansyah Nugraha" },
 ];
 
 async function main() {
@@ -153,7 +190,13 @@ async function main() {
   for (const s of staffSeed) {
     await prisma.staff.upsert({
       where: { nama: s.nama },
-      update: {},
+      update: {
+        tipe: s.tipe,
+        aktif: s.aktif,
+        gajiBulanan: s.gajiBulanan ?? null,
+        rateHourly: s.rateHourly ?? null,
+        namaLengkap: s.namaLengkap ?? null,
+      },
       create: s,
     });
   }

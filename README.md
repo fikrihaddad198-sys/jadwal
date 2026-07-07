@@ -6,10 +6,13 @@ Dibangun dengan [Next.js](https://nextjs.org) (App Router), [Prisma](https://www
 
 ## Fitur
 
-- **Jadwal** — grid mingguan per periode gajian (default tanggal 21 s/d 20 bulan berikutnya). Pilih kode shift per staff per hari; total jam, total libur, status *Jam Terpenuhi / Kurang X jam*, dan jumlah yang masuk/libur per hari terhitung otomatis dengan validasi aturan libur.
-- **Staff** — tambah/edit/nonaktifkan/hapus staff (tipe FT/PT).
+- **Jadwal** — grid mingguan per periode gajian (default tanggal 21 s/d 20 bulan berikutnya). Pilih kode shift per staff per hari; total jam, total libur, labour cost, status *Jam Terpenuhi / Kurang X jam*, dan jumlah yang masuk/libur per hari terhitung otomatis dengan validasi aturan libur.
+- **Generate otomatis** — tombol *Generate Minggu Ini* membuat draft jadwal sesuai aturan: FT 1 dayoff/minggu dengan jaminan opening & closing tiap hari; PT mix shift 4 & 6 jam mendekati target jam periode, libur 2–3/minggu, orang libur per hari dijaga. Hasilnya tetap bisa diedit manual.
+- **Labour cost** — PT: jam × rate per jam; FT: (gaji bulanan ÷ 173) × jam shift. Tampil per staff per minggu, per hari, dan total periode di dashboard.
+- **Rekap Gaji** — total jam per staff PT per periode × rate = gaji, plus daftar gaji tetap FT.
+- **Staff** — tambah/edit/nonaktifkan/hapus staff (tipe FT/PT, gaji bulanan / rate per jam, nama lengkap).
 - **Kode Shift** — kelola kode shift beserta jam mulai, jam selesai, durasi, dan kategori (FT/PT/OFF/HOLIDAY/MEETING).
-- **Pengaturan** — target jam PT per periode, tanggal mulai/selesai periode, dan aturan libur (min/max per minggu, min/max orang libur per hari).
+- **Pengaturan** — target jam PT per periode, tanggal periode, aturan libur, pembagi jam FT, rate PT default.
 
 ## Menjalankan secara lokal
 

@@ -1,11 +1,12 @@
 import { prisma } from "@/lib/prisma";
+import { formatRupiah } from "@/lib/labour";
 import { createStaff, updateStaff, toggleAktif, deleteStaff } from "./actions";
 
 export const dynamic = "force-dynamic";
 
 export default async function StaffPage() {
   const staff = await prisma.staff.findMany({
-    orderBy: [{ tipe: "asc" }, { nama: "asc" }],
+    orderBy: [{ aktif: "desc" }, { tipe: "asc" }, { nama: "asc" }],
   });
 
   return (
@@ -22,7 +23,15 @@ export default async function StaffPage() {
             name="nama"
             required
             className="rounded border border-zinc-300 px-2 py-1 text-sm"
-            placeholder="Nama staff"
+            placeholder="Nama panggilan"
+          />
+        </div>
+        <div className="flex flex-col gap-1">
+          <label className="text-xs text-zinc-500">Nama Lengkap</label>
+          <input
+            name="namaLengkap"
+            className="rounded border border-zinc-300 px-2 py-1 text-sm"
+            placeholder="Opsional"
           />
         </div>
         <div className="flex flex-col gap-1">
@@ -31,6 +40,24 @@ export default async function StaffPage() {
             <option value="PT">PT</option>
             <option value="FT">FT</option>
           </select>
+        </div>
+        <div className="flex flex-col gap-1">
+          <label className="text-xs text-zinc-500">Gaji Bulanan (FT)</label>
+          <input
+            name="gajiBulanan"
+            type="number"
+            className="w-32 rounded border border-zinc-300 px-2 py-1 text-sm"
+            placeholder="7326920"
+          />
+        </div>
+        <div className="flex flex-col gap-1">
+          <label className="text-xs text-zinc-500">Rate / Jam (PT)</label>
+          <input
+            name="rateHourly"
+            type="number"
+            className="w-28 rounded border border-zinc-300 px-2 py-1 text-sm"
+            placeholder="45475"
+          />
         </div>
         <button
           type="submit"
@@ -44,8 +71,8 @@ export default async function StaffPage() {
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-zinc-200 bg-zinc-50 text-left">
-              <th className="px-3 py-2">Nama</th>
-              <th className="px-3 py-2">Tipe</th>
+              <th className="px-3 py-2">Data Staff</th>
+              <th className="px-3 py-2 text-right">Gaji / Rate</th>
               <th className="px-3 py-2">Status</th>
               <th className="px-3 py-2"></th>
             </tr>
@@ -58,11 +85,17 @@ export default async function StaffPage() {
               return (
                 <tr key={s.id} className="border-b border-zinc-100 last:border-0">
                   <td className="px-3 py-2">
-                    <form action={update} className="flex items-center gap-2">
+                    <form action={update} className="flex flex-wrap items-center gap-2">
                       <input
                         name="nama"
                         defaultValue={s.nama}
-                        className="rounded border border-zinc-300 px-2 py-1"
+                        className="w-28 rounded border border-zinc-300 px-2 py-1"
+                      />
+                      <input
+                        name="namaLengkap"
+                        defaultValue={s.namaLengkap ?? ""}
+                        placeholder="Nama lengkap"
+                        className="w-44 rounded border border-zinc-300 px-2 py-1"
                       />
                       <select
                         name="tipe"
@@ -72,6 +105,20 @@ export default async function StaffPage() {
                         <option value="PT">PT</option>
                         <option value="FT">FT</option>
                       </select>
+                      <input
+                        name="gajiBulanan"
+                        type="number"
+                        defaultValue={s.gajiBulanan ?? ""}
+                        placeholder="Gaji bulanan"
+                        className="w-28 rounded border border-zinc-300 px-2 py-1"
+                      />
+                      <input
+                        name="rateHourly"
+                        type="number"
+                        defaultValue={s.rateHourly ?? ""}
+                        placeholder="Rate/jam"
+                        className="w-24 rounded border border-zinc-300 px-2 py-1"
+                      />
                       <button
                         type="submit"
                         className="rounded border border-zinc-300 px-2 py-1 text-xs hover:bg-zinc-50"
@@ -80,7 +127,15 @@ export default async function StaffPage() {
                       </button>
                     </form>
                   </td>
-                  <td className="px-3 py-2">{s.tipe}</td>
+                  <td className="px-3 py-2 text-right whitespace-nowrap text-zinc-600">
+                    {s.tipe === "FT"
+                      ? s.gajiBulanan
+                        ? `${formatRupiah(s.gajiBulanan)} / bln`
+                        : "-"
+                      : s.rateHourly
+                        ? `${formatRupiah(s.rateHourly)} / jam`
+                        : "-"}
+                  </td>
                   <td className="px-3 py-2">
                     {s.aktif ? (
                       <span className="rounded-full bg-green-100 px-2 py-0.5 text-xs text-green-700">
