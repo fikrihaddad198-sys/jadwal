@@ -62,6 +62,18 @@ model Assignment {
   @@index([date])
 }
 
+model HourlySale {
+  id        String   @id @default(cuid())
+  date      DateTime @db.Date
+  hour      Int
+  sales     Float    @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([date, hour])
+  @@index([date])
+}
+
 model Config {
   id                 Int      @id @default(1)
   targetJamPT        Float    @default(100)
