@@ -1,4 +1,5 @@
 import { getConfig } from "@/lib/config";
+import { PageHeader } from "../PageHeader";
 import { updateConfig } from "./actions";
 
 export const dynamic = "force-dynamic";
@@ -8,10 +9,14 @@ export default async function ConfigPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <h1 className="text-xl font-semibold">Pengaturan</h1>
+      <PageHeader
+        eyebrow="Aturan"
+        title="Pengaturan"
+        description="Target jam PT, tanggal periode, aturan libur, dan rate default."
+      />
       <form
         action={updateConfig}
-        className="grid max-w-xl grid-cols-2 gap-4 rounded-lg border border-zinc-200 bg-white p-6"
+        className="grid max-w-xl grid-cols-2 gap-4 rounded-xl bg-white shadow-sm ring-1 ring-zinc-950/5 p-6"
       >
         <NumberField
           label="Target Jam PT / periode"

@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { getConfig } from "@/lib/config";
 import { getPeriodForDate, shiftPeriod, toISODate, formatShort, addDays } from "@/lib/period";
 import { hourlyRate, formatRupiah } from "@/lib/labour";
+import { PageHeader } from "../PageHeader";
 
 export const dynamic = "force-dynamic";
 
@@ -52,30 +53,34 @@ export default async function GajiPage({
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <h1 className="text-xl font-semibold">Rekap Gaji</h1>
-        <div className="flex flex-wrap items-center gap-2 text-sm">
-          <Link
-            href={`/gaji?period=${toISODate(prevPeriod.start)}`}
-            className="rounded border border-zinc-300 px-2 py-1 hover:bg-white"
-          >
-            ← Periode sebelumnya
-          </Link>
-          <span className="rounded bg-white px-2 py-1 font-medium">
-            Periode {formatShort(period.start)} – {formatShort(addDays(period.end, -1))}
-          </span>
-          <Link
-            href={`/gaji?period=${toISODate(nextPeriod.start)}`}
-            className="rounded border border-zinc-300 px-2 py-1 hover:bg-white"
-          >
-            Periode berikutnya →
-          </Link>
-        </div>
-      </div>
+      <PageHeader
+        eyebrow="Payroll"
+        title="Rekap Gaji"
+        description="Gaji PT dihitung otomatis dari total jam terjadwal × rate per jam."
+        actions={
+          <div className="flex items-center gap-1 rounded-xl bg-white p-1 shadow-sm ring-1 ring-zinc-950/5">
+            <Link
+              href={`/gaji?period=${toISODate(prevPeriod.start)}`}
+              className="rounded-lg px-3 py-1.5 text-sm font-medium text-zinc-600 hover:bg-zinc-100"
+            >
+              ←
+            </Link>
+            <span className="px-2 text-sm font-semibold">
+              {formatShort(period.start)} – {formatShort(addDays(period.end, -1))}
+            </span>
+            <Link
+              href={`/gaji?period=${toISODate(nextPeriod.start)}`}
+              className="rounded-lg px-3 py-1.5 text-sm font-medium text-zinc-600 hover:bg-zinc-100"
+            >
+              →
+            </Link>
+          </div>
+        }
+      />
 
       <section className="flex flex-col gap-2">
         <h2 className="text-sm font-semibold text-zinc-600">Part Time (jam × rate)</h2>
-        <div className="overflow-x-auto rounded-lg border border-zinc-200 bg-white">
+        <div className="overflow-x-auto rounded-xl bg-white shadow-sm ring-1 ring-zinc-950/5">
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-zinc-200 bg-zinc-50 text-left">
@@ -119,7 +124,7 @@ export default async function GajiPage({
 
       <section className="flex flex-col gap-2">
         <h2 className="text-sm font-semibold text-zinc-600">Full Time (gaji bulanan tetap)</h2>
-        <div className="overflow-x-auto rounded-lg border border-zinc-200 bg-white">
+        <div className="overflow-x-auto rounded-xl bg-white shadow-sm ring-1 ring-zinc-950/5">
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-zinc-200 bg-zinc-50 text-left">

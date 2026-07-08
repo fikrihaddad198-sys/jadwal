@@ -6,6 +6,9 @@ import { generateWeek } from "@/lib/generator";
 import { getPeriodForDate, getWeeksInPeriod, parseISODate } from "@/lib/period";
 import { revalidatePath } from "next/cache";
 
+// Sengaja TANPA revalidatePath: revalidate memicu router refresh yang me-remount
+// grid dan mencuri fokus keyboard saat user sedang mengetik sel berikutnya.
+// Grid sudah optimistis; halaman lain force-dynamic sehingga tetap baca data segar.
 export async function setAssignment(staffId: string, dateISO: string, shiftCodeId: string) {
   const date = parseISODate(dateISO);
   if (!shiftCodeId) {
@@ -17,7 +20,6 @@ export async function setAssignment(staffId: string, dateISO: string, shiftCodeI
       create: { staffId, date, shiftCodeId },
     });
   }
-  revalidatePath("/jadwal");
 }
 
 export type GenerateResult = { ok: boolean; count?: number; error?: string };

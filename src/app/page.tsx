@@ -17,7 +17,7 @@ const STEPS = [
     icon: "🗓️",
     title: "2. Buat Jadwal",
     href: "/jadwal",
-    desc: "Klik ⚡ Generate per minggu, lalu koreksi manual lewat dropdown bila perlu.",
+    desc: "Ketik langsung di sel seperti di Excel, atau klik ⚡ auto per minggu lalu koreksi.",
   },
   {
     icon: "⏰",
@@ -65,18 +65,27 @@ export default async function Home() {
 
   return (
     <div className="flex flex-col gap-8">
-      <div className="rounded-2xl bg-gradient-to-r from-zinc-900 to-zinc-700 p-6 text-white">
-        <h1 className="text-2xl font-bold">Selamat datang 👋</h1>
-        <p className="mt-1 text-sm text-zinc-300">
-          Periode berjalan: <b className="text-white">{formatShort(period.start)} – {formatShort(addDays(period.end, -1))}</b>{" "}
-          · Target jam PT: <b className="text-white">{config.targetJamPT} jam</b>
-        </p>
-        <Link
-          href="/jadwal"
-          className="mt-4 inline-block rounded-lg bg-white px-4 py-2 text-sm font-semibold text-zinc-900 hover:bg-zinc-100"
-        >
-          Buka Jadwal Minggu Ini →
-        </Link>
+      <div className="relative overflow-hidden rounded-2xl bg-zinc-950 p-8 text-white shadow-lg">
+        <div className="absolute -right-24 -top-24 h-64 w-64 rounded-full bg-indigo-600/30 blur-3xl" />
+        <div className="absolute -bottom-32 right-32 h-64 w-64 rounded-full bg-violet-600/20 blur-3xl" />
+        <div className="relative">
+          <div className="text-[11px] font-semibold uppercase tracking-widest text-indigo-300">
+            Periode berjalan
+          </div>
+          <h1 className="mt-1 text-3xl font-bold tracking-tight">
+            {formatShort(period.start)} – {formatShort(addDays(period.end, -1))}
+          </h1>
+          <p className="mt-2 text-sm text-zinc-400">
+            Target jam PT: <b className="text-zinc-200">{config.targetJamPT} jam</b> · Ketik jadwal
+            langsung di grid seperti di Excel — tersimpan otomatis.
+          </p>
+          <Link
+            href="/jadwal"
+            className="mt-5 inline-block rounded-xl bg-indigo-500 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-indigo-500/30 transition-colors hover:bg-indigo-400"
+          >
+            Buka Jadwal →
+          </Link>
+        </div>
       </div>
 
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
@@ -84,7 +93,7 @@ export default async function Home() {
           <Link
             key={c.label}
             href={c.href}
-            className="rounded-xl border border-zinc-200 bg-white p-4 transition-shadow hover:shadow-md"
+            className="rounded-xl bg-white shadow-sm ring-1 ring-zinc-950/5 p-4 transition-shadow hover:shadow-md"
           >
             <div className="text-xs text-zinc-500">{c.label}</div>
             <div className="mt-1 text-xl font-bold">{c.value}</div>
@@ -102,7 +111,7 @@ export default async function Home() {
             <Link
               key={s.title}
               href={s.href}
-              className="rounded-xl border border-zinc-200 bg-white p-4 transition-shadow hover:shadow-md"
+              className="rounded-xl bg-white shadow-sm ring-1 ring-zinc-950/5 p-4 transition-shadow hover:shadow-md"
             >
               <div className="text-2xl">{s.icon}</div>
               <div className="mt-2 font-semibold">{s.title}</div>

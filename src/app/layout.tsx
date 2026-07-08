@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import { NavLinks } from "./NavLinks";
+import { Sidebar, MobileNav } from "./Sidebar";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Jadwal",
+  title: "Jadwal · Shift Planner",
   description: "Aplikasi kelola jadwal shift staff",
 };
 
@@ -28,19 +28,16 @@ export default function RootLayout({
       lang="id"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col bg-zinc-50 text-zinc-900">
-        <header className="sticky top-0 z-20 border-b border-zinc-200 bg-white/90 backdrop-blur">
-          <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-x-6 gap-y-2 px-4 py-3">
-            <span className="text-lg font-bold tracking-tight">📋 Jadwal</span>
-            <NavLinks />
+      <body className="min-h-full bg-zinc-100 text-zinc-900">
+        <div className="flex min-h-screen">
+          <Sidebar />
+          <div className="min-w-0 flex-1">
+            <MobileNav />
+            <main className="mx-auto max-w-[1400px] px-4 py-6 lg:px-8 lg:py-8">
+              {children}
+            </main>
           </div>
-        </header>
-        <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-6">
-          {children}
-        </main>
-        <footer className="border-t border-zinc-200 py-4 text-center text-xs text-zinc-400">
-          Aplikasi jadwal shift · pengganti spreadsheet
-        </footer>
+        </div>
       </body>
     </html>
   );

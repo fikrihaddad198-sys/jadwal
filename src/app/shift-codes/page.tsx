@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { PageHeader } from "../PageHeader";
 import { createShiftCode, updateShiftCode, deleteShiftCode } from "./actions";
 
 export const dynamic = "force-dynamic";
@@ -12,11 +13,15 @@ export default async function ShiftCodesPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <h1 className="text-xl font-semibold">Kode Shift</h1>
+      <PageHeader
+        eyebrow="Master Data"
+        title="Kode Shift"
+        description="Daftar semua kode shift beserta jam kerja dan kategorinya — dipakai saat mengetik di grid jadwal."
+      />
 
       <form
         action={createShiftCode}
-        className="flex flex-wrap items-end gap-3 rounded-lg border border-zinc-200 bg-white p-4"
+        className="flex flex-wrap items-end gap-3 rounded-xl bg-white shadow-sm ring-1 ring-zinc-950/5 p-4"
       >
         <Field label="Kode" name="code" placeholder="mis. PT8" required />
         <Field label="Mulai" name="startTime" placeholder="08:00" />
@@ -40,7 +45,7 @@ export default async function ShiftCodesPage() {
         </button>
       </form>
 
-      <div className="overflow-x-auto rounded-lg border border-zinc-200 bg-white">
+      <div className="overflow-x-auto rounded-xl bg-white shadow-sm ring-1 ring-zinc-950/5">
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-zinc-200 bg-zinc-50 text-left">
