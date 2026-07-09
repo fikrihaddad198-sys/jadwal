@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import Link from "next/link";
+import { Sidebar, MobileNav } from "./Sidebar";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -14,19 +14,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Jadwal",
+  title: "Jadwal · Shift Planner",
   description: "Aplikasi kelola jadwal shift staff",
 };
-
-const NAV = [
-  { href: "/", label: "Dashboard" },
-  { href: "/jadwal", label: "Jadwal" },
-  { href: "/coverage", label: "Coverage" },
-  { href: "/gaji", label: "Gaji" },
-  { href: "/staff", label: "Staff" },
-  { href: "/shift-codes", label: "Kode Shift" },
-  { href: "/config", label: "Pengaturan" },
-];
 
 export default function RootLayout({
   children,
@@ -38,26 +28,16 @@ export default function RootLayout({
       lang="id"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col bg-zinc-50 text-zinc-900">
-        <header className="border-b border-zinc-200 bg-white">
-          <div className="mx-auto flex max-w-6xl items-center gap-6 px-4 py-3">
-            <span className="text-lg font-semibold">Jadwal</span>
-            <nav className="flex gap-4 text-sm">
-              {NAV.map((item) => (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className="text-zinc-600 hover:text-zinc-950"
-                >
-                  {item.label}
-                </Link>
-              ))}
-            </nav>
+      <body className="min-h-full bg-zinc-100 text-zinc-900">
+        <div className="flex min-h-screen">
+          <Sidebar />
+          <div className="min-w-0 flex-1">
+            <MobileNav />
+            <main className="mx-auto max-w-[1400px] px-4 py-6 lg:px-8 lg:py-8">
+              {children}
+            </main>
           </div>
-        </header>
-        <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-6">
-          {children}
-        </main>
+        </div>
       </body>
     </html>
   );

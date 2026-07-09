@@ -13,6 +13,8 @@ import {
 import { hourlyRate, formatRupiah } from "@/lib/labour";
 import { HOURS, parseHourMinutes, onDutyAtHour } from "@/lib/coverage";
 import { saveHourlySales } from "./actions";
+import { SaveSalesButton } from "./SaveSalesButton";
+import { PageHeader } from "../PageHeader";
 
 export const dynamic = "force-dynamic";
 
@@ -79,25 +81,41 @@ export default async function CoveragePage({
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <h1 className="text-xl font-semibold">Coverage / Man Power per Jam</h1>
-        <div className="flex flex-wrap items-center gap-2 text-sm">
-          <Link
-            href={`/coverage?period=${toISODate(prevPeriod.start)}&week=0&day=0`}
-            className="rounded border border-zinc-300 px-2 py-1 hover:bg-white"
-          >
-            ← Periode sebelumnya
-          </Link>
-          <span className="rounded bg-white px-2 py-1 font-medium">
-            Periode {formatShort(period.start)} – {formatShort(addDays(period.end, -1))}
-          </span>
-          <Link
-            href={`/coverage?period=${toISODate(nextPeriod.start)}&week=0&day=0`}
-            className="rounded border border-zinc-300 px-2 py-1 hover:bg-white"
-          >
-            Periode berikutnya →
-          </Link>
-        </div>
+      <PageHeader
+        eyebrow="Man Power Plan"
+        title="Coverage per Jam"
+        description="Siapa bertugas di jam berapa, plus Labour% per jam dari sales harian."
+        actions={
+          <div className="flex items-center gap-1 rounded-xl bg-white p-1 shadow-sm ring-1 ring-zinc-950/5">
+            <Link
+              href={`/coverage?period=${toISODate(prevPeriod.start)}&week=0&day=0`}
+              className="rounded-lg px-3 py-1.5 text-sm font-medium text-zinc-600 hover:bg-zinc-100"
+            >
+              ←
+            </Link>
+            <span className="px-2 text-sm font-semibold">
+              {formatShort(period.start)} – {formatShort(addDays(period.end, -1))}
+            </span>
+            <Link
+              href={`/coverage?period=${toISODate(nextPeriod.start)}&week=0&day=0`}
+              className="rounded-lg px-3 py-1.5 text-sm font-medium text-zinc-600 hover:bg-zinc-100"
+            >
+              →
+            </Link>
+          </div>
+        }
+      />
+
+      <div className="rounded-xl bg-indigo-50 p-4 text-sm text-indigo-950 ring-1 ring-indigo-100">
+        <p className="font-semibold">ℹ️ Apa gunanya halaman ini?</p>
+        <p className="mt-1 leading-relaxed">
+          Ini <b>man power plan per jam</b> (pengganti tab WEEK1–WEEK6 di spreadsheet). Grid di
+          bawah menunjukkan <b>siapa yang bertugas di tiap jam</b> berdasarkan jadwal yang sudah
+          kamu buat di halaman Jadwal. Cara pakai: <b>1)</b> pilih Minggu, <b>2)</b> pilih Hari,{" "}
+          <b>3)</b> lihat baris MPP — kalau ada angka merah berarti jam itu tidak ada yang jaga,{" "}
+          <b>4)</b> isi penjualan per jam di baris &quot;Sales / jam&quot; lalu klik Simpan — Labour%
+          per jam langsung terhitung (merah bila di atas 15%).
+        </p>
       </div>
 
       <div className="flex flex-wrap items-center gap-2 text-sm">
@@ -129,7 +147,7 @@ export default async function CoveragePage({
       </div>
 
       <form action={save}>
-        <div className="overflow-x-auto rounded-lg border border-zinc-200 bg-white">
+        <div className="overflow-x-auto rounded-xl bg-white shadow-sm ring-1 ring-zinc-950/5">
           <table className="w-full text-xs">
             <thead>
               <tr className="border-b border-zinc-200 bg-zinc-50 text-left">
@@ -234,12 +252,7 @@ export default async function CoveragePage({
         </div>
 
         <div className="mt-3 flex flex-wrap items-center gap-4 text-sm">
-          <button
-            type="submit"
-            className="rounded bg-zinc-900 px-4 py-1.5 text-white hover:bg-zinc-700"
-          >
-            Simpan Sales Hari Ini
-          </button>
+          <SaveSalesButton />
           <span className="text-zinc-600">
             Total sales: <b>{formatRupiah(totalSales)}</b> · Total labour:{" "}
             <b>{formatRupiah(totalLabour)}</b>

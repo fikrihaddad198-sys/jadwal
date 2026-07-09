@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { formatRupiah } from "@/lib/labour";
+import { PageHeader } from "../PageHeader";
 import { createStaff, updateStaff, toggleAktif, deleteStaff } from "./actions";
 
 export const dynamic = "force-dynamic";
@@ -11,11 +12,15 @@ export default async function StaffPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <h1 className="text-xl font-semibold">Staff</h1>
+      <PageHeader
+        eyebrow="Tim"
+        title="Staff"
+        description="Kelola daftar staff, tipe FT/PT, gaji bulanan, dan rate per jam."
+      />
 
       <form
         action={createStaff}
-        className="flex flex-wrap items-end gap-3 rounded-lg border border-zinc-200 bg-white p-4"
+        className="flex flex-wrap items-end gap-3 rounded-xl bg-white shadow-sm ring-1 ring-zinc-950/5 p-4"
       >
         <div className="flex flex-col gap-1">
           <label className="text-xs text-zinc-500">Nama</label>
@@ -67,7 +72,7 @@ export default async function StaffPage() {
         </button>
       </form>
 
-      <div className="overflow-x-auto rounded-lg border border-zinc-200 bg-white">
+      <div className="overflow-x-auto rounded-xl bg-white shadow-sm ring-1 ring-zinc-950/5">
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-zinc-200 bg-zinc-50 text-left">
