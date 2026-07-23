@@ -7,6 +7,7 @@ const NAV = [
   { href: "/", label: "Dashboard", icon: "◱" },
   { href: "/jadwal", label: "Jadwal", icon: "▦" },
   { href: "/coverage", label: "Coverage", icon: "◷" },
+  { href: "/validasi", label: "Validasi Libur", icon: "✓" },
   { href: "/gaji", label: "Gaji", icon: "◈" },
   { href: "/staff", label: "Staff", icon: "◉" },
   { href: "/shift-codes", label: "Kode Shift", icon: "❖" },

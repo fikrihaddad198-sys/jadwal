@@ -43,17 +43,46 @@ export default async function CoveragePage({
   const prevPeriod = shiftPeriod(period, -1, config.periodeMulaiTgl, config.periodeSelesaiTgl);
   const nextPeriod = shiftPeriod(period, 1, config.periodeMulaiTgl, config.periodeSelesaiTgl);
 
-  const [staff, assignments, hourlySales] = await Promise.all([
+  const [staff, weekAssignments, hourlySales] = await Promise.all([
     prisma.staff.findMany({ where: { aktif: true }, orderBy: [{ tipe: "asc" }, { nama: "asc" }] }),
     prisma.assignment.findMany({
-      where: { date },
+      where: {
+        date: {
+          gte: currentWeek.dates[0],
+          lte: currentWeek.dates[currentWeek.dates.length - 1],
+        },
+      },
       include: { shiftCode: true },
     }),
     prisma.hourlySale.findMany({ where: { date } }),
   ]);
 
+  const staffIds = new Set(staff.map((s) => s.id));
+  const assignments = weekAssignments.filter(
+    (a) => toISODate(a.date) === dateISO && staffIds.has(a.staffId)
+  );
+
   const salesByHour = new Map(hourlySales.map((h) => [h.hour, h.sales]));
   const assignmentByStaff = new Map(assignments.map((a) => [a.staffId, a]));
+
+  // MPP ringkas satu minggu: baris = hari, kolom = jam
+  const weekMpp = currentWeek.dates.map((d) => {
+    const iso = toISODate(d);
+    const spans = weekAssignments
+      .filter((a) => toISODate(a.date) === iso && staffIds.has(a.staffId))
+      .map((a) => ({
+        start: parseHourMinutes(a.shiftCode.startTime),
+        end: parseHourMinutes(a.shiftCode.endTime),
+        hours: a.shiftCode.hours,
+      }))
+      .filter((r) => r.start !== null && r.end !== null && r.hours > 0);
+    return {
+      d,
+      iso,
+      counts: HOURS.map((h) => spans.filter((r) => onDutyAtHour(r.start!, r.end!, h)).length),
+      hasData: spans.length > 0,
+    };
+  });
 
   // baris on-duty per staff: shift dengan jam mulai/selesai valid
   const dutyRows = staff
@@ -144,6 +173,58 @@ export default async function CoveragePage({
             {dayName(d)} {formatShort(d)}
           </Link>
         ))}
+      </div>
+
+      <div className="overflow-x-auto rounded-xl bg-white shadow-sm ring-1 ring-zinc-950/5">
+        <table className="w-full text-xs">
+          <thead>
+            <tr className="border-b border-zinc-200 bg-zinc-50 text-left">
+              <th className="sticky left-0 bg-zinc-50 px-3 py-2">
+                MPP Minggu {weekIndex + 1}
+              </th>
+              {HOURS.map((h) => (
+                <th key={h} className="px-1 py-2 text-center font-normal text-zinc-500">
+                  {h}:00
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {weekMpp.map((row, i) => (
+              <tr key={row.iso} className="border-b border-zinc-100 last:border-0">
+                <td className="sticky left-0 whitespace-nowrap bg-white px-3 py-1.5">
+                  <Link
+                    href={`/coverage?${baseQS}&week=${weekIndex}&day=${i}`}
+                    className={`font-medium hover:underline ${i === dayIndex ? "text-blue-600" : ""}`}
+                  >
+                    {dayName(row.d)} {formatShort(row.d)}
+                  </Link>
+                </td>
+                {row.counts.map((n, j) => (
+                  <td
+                    key={HOURS[j]}
+                    className={`px-1 py-1.5 text-center ${
+                      !row.hasData
+                        ? "text-zinc-300"
+                        : n === 0
+                          ? "bg-red-100 font-semibold text-red-700"
+                          : n === 1
+                            ? "bg-amber-50 text-amber-700"
+                            : "bg-emerald-50 text-emerald-800"
+                    }`}
+                  >
+                    {row.hasData ? n : "–"}
+                  </td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        <p className="border-t border-zinc-100 px-3 py-2 text-[11px] text-zinc-500">
+          Jumlah orang bertugas per jam untuk seluruh minggu (seperti baris MPP di tab WEEK
+          spreadsheet). Merah = kosong, kuning = hanya 1 orang. Klik nama hari untuk lihat
+          detailnya di bawah.
+        </p>
       </div>
 
       <form action={save}>

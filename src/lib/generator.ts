@@ -59,7 +59,7 @@ function buildPools(shiftCodes: ShiftCode[]): Pools {
 
 /**
  * Susun rencana jam kerja satu staff PT untuk `slots` hari kerja agar
- * totalnya mendekati `target`, dengan campuran shift 4 & 6 jam.
+ * totalnya mendekati `target`, dengan campuran shift 4/5/6 jam.
  */
 function planPtHours(target: number, slots: number, durations: number[]): number[] {
   const sorted = [...durations].sort((a, b) => a - b);
@@ -137,9 +137,9 @@ export function generateWeek(opts: {
   });
 
   // ===== PT =====
-  // Pakai mix standar 4 & 6 jam seperti di spreadsheet; fallback ke semua durasi
+  // Pakai mix standar 4/5/6 jam seperti pecahan manual di spreadsheet; fallback ke semua durasi
   const allDurations = [...pools.ptByDuration.keys()].sort((a, b) => a - b);
-  const preferred = allDurations.filter((d) => d === 4 || d === 6);
+  const preferred = allDurations.filter((d) => d >= 4 && d <= 6);
   const durations = preferred.length > 0 ? preferred : allDurations;
   if (pt.length > 0 && durations.length > 0) {
     const weeklyTarget = (config.targetJamPT / totalDaysInPeriod) * nDays;
